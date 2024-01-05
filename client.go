@@ -56,7 +56,8 @@ type Ctx struct {
 func (ctx *Ctx) resolve(err error) {
 	defer func() {
 		if err := recover(); err != nil {
-			// do nothing
+			// it might panic because ctx.Err is closed by client.go:180
+			// we don't have time to fix it now, we will handle it later
 		}
 	}()
 	select {

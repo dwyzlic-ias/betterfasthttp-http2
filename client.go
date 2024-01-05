@@ -160,11 +160,17 @@ func (cl *Client) RoundTrip(_ *fasthttp.HostClient, req *fasthttp.Request, res *
 
 	if cl.opts.MaxResponseTime > 0 {
 		cancelTimer = time.AfterFunc(cl.opts.MaxResponseTime, func() {
+			defer func() {
+				if err := recover(); err != nil {
+					// it might panic because ctx.Err is closed by client.go:180
+					// we don't have time to fix it now, we will handle it later
+				}
+				c.cancel(ctx)
+			}()
+
 			select {
 			case ch <- ErrRequestCanceled:
 			}
-
-			c.cancel(ctx)
 		})
 	}
 

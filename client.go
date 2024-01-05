@@ -54,6 +54,11 @@ type Ctx struct {
 
 // resolve will resolve the context, meaning that provided an error,
 func (ctx *Ctx) resolve(err error) {
+	defer func() {
+		if err := recover(); err != nil {
+			// do nothing
+		}
+	}()
 	select {
 	case ctx.Err <- err:
 	default:
